@@ -27,26 +27,40 @@ fi
 
 case $op in
 "+")
-	res="$((num1 + num2))"
+	res=$(awk -v num1="$num1" -v num2="$num2" 'BEGIN {printf "%.2f", num1+num2}')
+	if [[ "$res" == *".00" ]]; then
+		res=${res%.*}
+	fi
 	;;
 "-")
-	res="$((num1 - num2))"
+	res=$(awk -v num1="$num1" -v num2="$num2" 'BEGIN {printf "%.2f", num1-num2}')
+	if [[ "$res" == *".00" ]]; then
+		res=${res%.*}
+	fi
 	;;
 "*")
-	res="$((num1 * num2))"
+	res=$(awk -v num1="$num1" -v num2="$num2" 'BEGIN {printf "%.2f", num1*num2}')
+	if [[ "$res" == *".00" ]]; then
+		res=${res%.*}
+	fi
 	;;
 "/")
 	if [ "$num2" -eq 0 ]; then
 		echo "MATH ERROR"
 		exit 1
 	fi
-	# round to 2 decimal digits
-	# res=$(echo "scale=2; $num1 / $num2" | bc)
 	res=$(awk -v num1="$num1" -v num2="$num2" 'BEGIN {printf "%.2f", num1/num2}')
+	if [[ "$res" == *".00" ]]; then
+		res=${res%.*}
+	fi
 	;;
 "%")
 	if [ "$num2" -eq 0 ]; then
 		echo "MATH ERROR"
+		exit 1
+	fi
+	if [[ $num1 == *"."* || $num2 == *"."* ]]; then
+		echo "SYNTAX ERROR"
 		exit 1
 	fi
 	res="$((num1 % num2))"
@@ -71,4 +85,4 @@ else
 	echo "$num1 $op $num2 = $res" >>HIST.txt
 fi
 # echo the result
-echo "Result: $res"
+echo "$res"
